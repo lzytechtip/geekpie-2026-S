@@ -7,8 +7,7 @@
  * @param {{uifid: string}} context 本组请求上下文
  * @returns {string | Promise<string>} 对应的 a_bogus
  */
-function get_ab(url, context) {
-  const uifid = context && context.uifid ? context.uifid : "";
+function get_ab(url, { uifid }) {
   if (uifid) {
     if (typeof document !== "undefined") {
       document.cookie = "uifid=" + uifid;
@@ -22,7 +21,7 @@ function get_ab(url, context) {
     try {
       window.bdms.init({ aid: 6383, pageId: 6241, paths: ["/"] });
       window._bdms_inited = true;
-    } catch (e) {}
+    } catch (e) { }
   }
 
   const xhr = new XMLHttpRequest();
