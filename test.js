@@ -1,6 +1,7 @@
 require("./env.js");
 require("./code.js");
-const get_ab = require("./get_ab.js");
+const _get_ab = require("./get_ab.js");
+const get_ab = _get_ab.default || _get_ab;
 
 console.log("=== 开始运行 a_bogus 离线测试套件 ===\n");
 

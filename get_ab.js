@@ -7,12 +7,18 @@
  * @param {{uifid: string}} context 本组请求上下文
  * @returns {string | Promise<string>} 对应的 a_bogus
  */
-function get_ab(url, { uifid }) {
+function get_ab(url, context) {
+  const uifid = (context && typeof context === "object" && context.uifid)
+    || (typeof url === "string" && (url.match(/[?&]uifid=([^&#]+)/) || [])[1])
+    || "";
+
   if (uifid) {
-    if (typeof document !== "undefined") {
-      document.cookie = "uifid=" + uifid;
-    }
-    if (!url.includes("uifid=")) {
+    try {
+      if (typeof document !== "undefined") {
+        document.cookie = "uifid=" + uifid;
+      }
+    } catch (e) {}
+    if (typeof url === "string" && !url.includes("uifid=")) {
       url += (url.includes("?") ? "&" : "?") + "uifid=" + uifid;
     }
   }
@@ -21,17 +27,23 @@ function get_ab(url, { uifid }) {
     try {
       window.bdms.init({ aid: 6383, pageId: 6241, paths: ["/"] });
       window._bdms_inited = true;
-    } catch (e) { }
+    } catch (e) {}
   }
 
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", url, true);
-  xhr.send(null);
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.send(null);
+    const match = xhr.url && xhr.url.match(/[?&]a_bogus=([^&#]+)/);
+    if (match) {
+      return decodeURIComponent(match[1]);
+    }
+  } catch (e) {}
 
-  const match = xhr.url.match(/[?&]a_bogus=([^&#]+)/);
-  return match ? decodeURIComponent(match[1]) : "";
+  return "";
 }
 
 if (typeof module !== "undefined" && module.exports) {
   module.exports = get_ab;
+  module.exports.get_ab = get_ab;
 }
